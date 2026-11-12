@@ -1,5 +1,6 @@
 
 
+
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -31,9 +32,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-st.title("🍄 Super Mario Adventure")
-st.caption("A five-level platform adventure built with Streamlit, HTML, CSS and JavaScript.")
 
 game_html = r"""
 <!DOCTYPE html>
@@ -456,9 +454,13 @@ function loadLevel(number) {
         height: 30,
         speed: data.enemySpeed,
         direction: index % 2 === 0 ? 1 : -1,
-        startX: e[0],
-        minX: Math.max(0, e[0] - 65),
-        maxX: Math.min(820, e[0] + 65)
+
+        // UPDATED:
+        // Enemies can now patrol across the entire map.
+        // Their original speed is unchanged.
+        minX: 0,
+        maxX: 820
+
     }));
 
     player.x = 40;
@@ -631,19 +633,22 @@ function updateCoins() {
 }
 
 // ===================================
-// ENEMIES
+// ENEMIES - UPDATED MOVEMENT
 // ===================================
 
 function updateEnemies() {
 
     enemies.forEach(e => {
 
+        // Original enemy speed is preserved
         e.x += e.speed * e.direction;
 
+        // Patrol across the entire game map
         if (e.x <= e.minX || e.x >= e.maxX) {
             e.direction *= -1;
         }
 
+        // Keep original collision protection
         if (invulnerable > 0) return;
 
         if (isColliding(player, e)) {
@@ -732,7 +737,6 @@ function updateHUD() {
 
 function drawPlayer() {
 
-    // Flicker while temporarily protected
     if (invulnerable > 0 && Math.floor(invulnerable / 8) % 2 === 0) {
         return;
     }
